@@ -156,3 +156,41 @@ document.addEventListener('keydown', e => {
 
 // Inicializa o jogo
 initBoard();
+
+// Variáveis para capturar o início e o fim do toque
+let startX, startY, endX, endY;
+
+// Detecta início do toque
+document.addEventListener('touchstart', (e) => {
+  startX = e.touches[0].clientX;
+  startY = e.touches[0].clientY;
+});
+
+// Detecta fim do toque
+document.addEventListener('touchend', (e) => {
+  endX = e.changedTouches[0].clientX;
+  endY = e.changedTouches[0].clientY;
+
+  handleSwipe();
+});
+
+// Calcula o swipe com base na direção
+function handleSwipe() {
+  const diffX = endX - startX;
+  const diffY = endY - startY;
+
+  // Verifica se o swipe foi mais na horizontal ou vertical
+  if (Math.abs(diffX) > Math.abs(diffY)) {
+    if (diffX > 50) {
+      move('right'); // Swipe para a direita
+    } else if (diffX < -50) {
+      move('left'); // Swipe para a esquerda
+    }
+  } else {
+    if (diffY > 50) {
+      move('down'); // Swipe para baixo
+    } else if (diffY < -50) {
+      move('up'); // Swipe para cima
+    }
+  }
+}
