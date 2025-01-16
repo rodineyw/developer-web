@@ -7,12 +7,23 @@ let score = 0;
 const gameBoard = document.getElementById('game-board');
 const scoreDisplay = document.getElementById('score');
 const gameMessage = document.getElementById('game-message');
+const instructions = document.getElementById('instructions');
 
 // Sons do jogo
 const sounds = {
   move: 'assets/move.m4a',
   gameover: 'assets/perdeu.m4a',
 };
+
+// Detecta se o dispositivo é móvel
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+// Atualiza as instruções com base no dispositivo
+if (isMobile) {
+  instructions.textContent = "Instruções: Deslize para cima, para baixo e para os lados para jogar. Atualize a página para reiniciar.";
+} else {
+  instructions.textContent = "Instruções: Use as setas do teclado para jogar. Atualize a página para reiniciar.";
+}
 
 // Função para reproduzir sons
 function playSound(soundFile) {
@@ -44,6 +55,7 @@ function updateBoard() {
   scoreDisplay.textContent = `Score: ${score}`;
 }
 
+
 // Gera uma nova peça (2 ou 4) em posição vazia
 function spawnTile() {
   const emptyCells = [];
@@ -57,6 +69,60 @@ function spawnTile() {
     const [x, y] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
     board[x][y] = Math.random() > 0.9 ? 4 : 2;
   }
+}
+
+// Mostra uma mensagem com DOM
+function showMessage(text, showRestartButton = false) {
+  gameMessage.innerHTML = ''; // Limpa mensagens anteriores
+
+  const messageText = document.createElement('p');
+  messageText.textContent = text;
+  gameMessage.appendChild(messageText);
+
+  if (showRestartButton) {
+    const restartButton = document.createElement('button');
+    restartButton.textContent = 'Reiniciar';
+    restartButton.addEventListener('click', () => {
+      resetGame();
+    });
+    gameMessage.appendChild(restartButton);
+  }
+}
+
+// Verifica se o jogador atingiu 2048
+function checkWin() {
+  for (let i = 0; i < boardSize; i++) {
+    for (let j = 0; j < boardSize; j++) {
+      if (board[i][j] === 2048) {
+        showMessage('Parabéns! Você atingiu 2048!', true);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// Verifica se o jogo acabou
+function checkGameOver() {
+  for (let i = 0; i < boardSize; i++) {
+    for (let j = 0; j < boardSize; j++) {
+      if (board[i][j] === 0) return false;
+      if (i > 0 && board[i][j] === board[i - 1][j]) return false;
+      if (i < boardSize - 1 && board[i][j] === board[i + 1][j]) return false;
+      if (j > 0 && board[i][j] === board[i][j - 1]) return false;
+      if (j < boardSize - 1 && board[i][j] === board[i][j + 1]) return false;
+    }
+  }
+  showMessage('Fim de Jogo! Não há mais movimentos!', true);
+  playSound(sounds.gameover);
+  return true;
+}
+
+// Reseta o jogo
+function resetGame() {
+  score = 0;
+  gameMessage.textContent = '';
+  initBoard();
 }
 
 // Move as peças em uma direção
@@ -135,52 +201,6 @@ function move(direction) {
   }
 }
 
-// Verifica se o jogador atingiu 2048
-function checkWin() {
-  for (let i = 0; i < boardSize; i++) {
-    for (let j = 0; j < boardSize; j++) {
-      if (board[i][j] === 2048) {
-        showMessage('Parabéns! Você atingiu 2048!', true);
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-// Verifica se o jogo acabou
-function checkGameOver() {
-  for (let i = 0; i < boardSize; i++) {
-    for (let j = 0; j < boardSize; j++) {
-      if (board[i][j] === 0) return false;
-      if (i > 0 && board[i][j] === board[i - 1][j]) return false;
-      if (i < boardSize - 1 && board[i][j] === board[i + 1][j]) return false;
-      if (j > 0 && board[i][j] === board[i][j - 1]) return false;
-      if (j < boardSize - 1 && board[i][j] === board[i][j + 1]) return false;
-    }
-  }
-  showMessage('Fim de Jogo! Não há mais movimentos!', true);
-  return true;
-}
-
-// Mostra uma mensagem com animação
-function showMessage(text, showRestartButton = false) {
-  gameMessage.innerHTML = ''; // Limpa mensagens anteriores
-
-  const messageText = document.createElement('p');
-  messageText.textContent = text;
-  gameMessage.appendChild(messageText);
-
-  if (showRestartButton) {
-    const restartButton = document.createElement('button');
-    restartButton.textContent = 'Reiniciar';
-    restartButton.addEventListener('click', () => {
-      resetGame();
-    });
-    gameMessage.appendChild(restartButton);
-  }
-}
-
 // Detecta teclas pressionadas
 document.addEventListener('keydown', e => {
   switch (e.key) {
@@ -236,79 +256,6 @@ function handleSwipe() {
       move('up'); // Swipe para cima
     }
   }
-}
-
-// Seleciona o elemento de instruções
-const instructions = document.getElementById('instructions');
-
-// Detecta se o dispositivo é móvel
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-// Atualiza as instruções com base no dispositivo
-if (isMobile) {
-  instructions.textContent = "Instruções: Deslize para cima, para baixo e para os lados para jogar. Atualize a página para reiniciar.";
-} else {
-  instructions.textContent = "Instruções: Use as setas do teclado para jogar. Atualize a página para reiniciar.";
-}
-
-
-// Seleciona o contêiner de mensagens
-const messageBox = document.getElementById('message');
-
-// Mostra uma mensagem com animação
-function showMessage(text, showRestartButton = false) {
-  messageBox.textContent = ''; // Limpa mensagens anteriores
-  const messageText = document.createElement('p');
-  messageText.textContent = text;
-  messageBox.appendChild(messageText);
-
-  // Adiciona um botão de reinício, se necessário
-  if (showRestartButton) {
-    const restartButton = document.createElement('span');
-    restartButton.textContent = "Reiniciar Jogo";
-    restartButton.addEventListener('click', resetGame);
-    messageBox.appendChild(restartButton);
-  }
-
-  // Exibe o contêiner
-  messageBox.classList.remove('hidden');
-}
-
-// Verifica se o jogador atingiu 2048
-function checkWin() {
-  for (let i = 0; i < boardSize; i++) {
-    for (let j = 0; j < boardSize; j++) {
-      if (board[i][j] === 2048) {
-        showMessage('Parabéns! Você atingiu 2048!', true);
-        return true; // O jogo pode continuar se o jogador quiser
-      }
-    }
-  }
-  return false;
-}
-
-// Verifica se o jogo terminou
-function checkGameOver() {
-  for (let i = 0; i < boardSize; i++) {
-    for (let j = 0; j < boardSize; j++) {
-      if (board[i][j] === 0) return false; // Ainda há espaços vazios
-      if (i > 0 && board[i][j] === board[i - 1][j]) return false; // Mesclar vertical
-      if (i < boardSize - 1 && board[i][j] === board[i + 1][j]) return false;
-      if (j > 0 && board[i][j] === board[i][j - 1]) return false; // Mesclar horizontal
-      if (j < boardSize - 1 && board[i][j] === board[i][j + 1]) return false;
-    }
-  }
-
-  // Se nenhuma condição foi atendida, o jogo acabou
-  showMessage('Fim de Jogo! Não há mais movimentos!', true);
-  return true;
-}
-
-// Reseta o jogo
-function resetGame() {
-  score = 0;
-  gameMessage.textContent = '';
-  initBoard();
 }
 
 // Inicializa o jogo
