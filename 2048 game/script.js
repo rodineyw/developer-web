@@ -11,8 +11,6 @@ const gameMessage = document.getElementById('game-message');
 // Sons do jogo
 const sounds = {
   move: 'assets/move.m4a',
-  merge: 'assets/merge.m4a',
-  win: 'assets/win.m4a',
   gameover: 'assets/perdeu.m4a',
 };
 
@@ -167,21 +165,20 @@ function checkGameOver() {
 
 // Mostra uma mensagem com animação
 function showMessage(text, showRestartButton = false) {
-  gameMessage.textContent = text;
+  gameMessage.innerHTML = ''; // Limpa mensagens anteriores
+
+  const messageText = document.createElement('p');
+  messageText.textContent = text;
+  gameMessage.appendChild(messageText);
 
   if (showRestartButton) {
     const restartButton = document.createElement('button');
-    restartButton.textContent = "Reiniciar";
-    restartButton.addEventListener('click', resetGame);
+    restartButton.textContent = 'Reiniciar';
+    restartButton.addEventListener('click', () => {
+      resetGame();
+    });
     gameMessage.appendChild(restartButton);
   }
-}
-
-// Reseta o jogo
-function resetGame() {
-  score = 0;
-  gameMessage.textContent = '';
-  initBoard();
 }
 
 // Detecta teclas pressionadas
@@ -307,6 +304,12 @@ function checkGameOver() {
   return true;
 }
 
+// Reseta o jogo
+function resetGame() {
+  score = 0;
+  gameMessage.textContent = '';
+  initBoard();
+}
 
 // Inicializa o jogo
 initBoard();
