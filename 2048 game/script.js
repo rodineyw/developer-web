@@ -194,3 +194,32 @@ function handleSwipe() {
     }
   }
 }
+
+// Seleciona o botão de tela cheia
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+// Alterna para o modo tela cheia
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    // Ativa o modo tela cheia
+    document.documentElement.requestFullscreen()
+      .then(() => {
+        fullscreenBtn.textContent = "Sair da Tela Cheia";
+      })
+      .catch(err => {
+        console.error(`Erro ao entrar em tela cheia: ${err.message}`);
+      });
+  } else {
+    // Sai do modo tela cheia
+    document.exitFullscreen()
+      .then(() => {
+        fullscreenBtn.textContent = "Tela Cheia";
+      })
+      .catch(err => {
+        console.error(`Erro ao sair da tela cheia: ${err.message}`);
+      });
+  }
+}
+
+// Adiciona o evento ao botão
+fullscreenBtn.addEventListener('click', toggleFullscreen);
