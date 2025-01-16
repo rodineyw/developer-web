@@ -8,6 +8,20 @@ const gameBoard = document.getElementById('game-board');
 const scoreDisplay = document.getElementById('score');
 const gameMessage = document.getElementById('game-message');
 
+// Sons do jogo
+const sounds = {
+  move: 'assets/move.m4a',
+  merge: 'assets/merge.m4a',
+  win: 'assets/win.m4a',
+  gameover: 'assets/perdeu.m4a',
+};
+
+// Função para reproduzir sons
+function playSound(soundFile) {
+  const audio = new Audio(soundFile);
+  audio.play();
+}
+
 // Inicializa o tabuleiro
 function initBoard() {
   board = Array.from({ length: boardSize }, () => Array(boardSize).fill(0));
@@ -107,12 +121,33 @@ function move(direction) {
   }
 
   if (moved) {
+    playSound(sounds.move);
     spawnTile();
     updateBoard();
+
+    if (checkWin()) {
+      playSound(sounds.win); // Som de vitória
+      return;
+    }
+
     if (checkGameOver()) {
-      gameMessage.textContent = 'Game Over!';
+      playSound(sounds.gameover); // Som de fim de jogo
+      return;
     }
   }
+}
+
+// Verifica se o jogador atingiu 2048
+function checkWin() {
+  for (let i = 0; i < boardSize; i++) {
+    for (let j = 0; j < boardSize; j++) {
+      if (board[i][j] === 2048) {
+        showMessage('Parabéns! Você atingiu 2048!', true);
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 // Verifica se o jogo acabou
@@ -126,7 +161,20 @@ function checkGameOver() {
       if (j < boardSize - 1 && board[i][j] === board[i][j + 1]) return false;
     }
   }
+  showMessage('Fim de Jogo! Não há mais movimentos!', true);
   return true;
+}
+
+// Mostra uma mensagem com animação
+function showMessage(text, showRestartButton = false) {
+  gameMessage.textContent = text;
+
+  if (showRestartButton) {
+    const restartButton = document.createElement('button');
+    restartButton.textContent = "Reiniciar";
+    restartButton.addEventListener('click', resetGame);
+    gameMessage.appendChild(restartButton);
+  }
 }
 
 // Reseta o jogo
@@ -154,8 +202,6 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// Inicializa o jogo
-initBoard();
 
 // Variáveis para capturar o início e o fim do toque
 let startX, startY, endX, endY;
@@ -207,3 +253,60 @@ if (isMobile) {
 } else {
   instructions.textContent = "Instruções: Use as setas do teclado para jogar. Atualize a página para reiniciar.";
 }
+
+
+// Seleciona o contêiner de mensagens
+const messageBox = document.getElementById('message');
+
+// Mostra uma mensagem com animação
+function showMessage(text, showRestartButton = false) {
+  messageBox.textContent = ''; // Limpa mensagens anteriores
+  const messageText = document.createElement('p');
+  messageText.textContent = text;
+  messageBox.appendChild(messageText);
+
+  // Adiciona um botão de reinício, se necessário
+  if (showRestartButton) {
+    const restartButton = document.createElement('span');
+    restartButton.textContent = "Reiniciar Jogo";
+    restartButton.addEventListener('click', resetGame);
+    messageBox.appendChild(restartButton);
+  }
+
+  // Exibe o contêiner
+  messageBox.classList.remove('hidden');
+}
+
+// Verifica se o jogador atingiu 2048
+function checkWin() {
+  for (let i = 0; i < boardSize; i++) {
+    for (let j = 0; j < boardSize; j++) {
+      if (board[i][j] === 2048) {
+        showMessage('Parabéns! Você atingiu 2048!', true);
+        return true; // O jogo pode continuar se o jogador quiser
+      }
+    }
+  }
+  return false;
+}
+
+// Verifica se o jogo terminou
+function checkGameOver() {
+  for (let i = 0; i < boardSize; i++) {
+    for (let j = 0; j < boardSize; j++) {
+      if (board[i][j] === 0) return false; // Ainda há espaços vazios
+      if (i > 0 && board[i][j] === board[i - 1][j]) return false; // Mesclar vertical
+      if (i < boardSize - 1 && board[i][j] === board[i + 1][j]) return false;
+      if (j > 0 && board[i][j] === board[i][j - 1]) return false; // Mesclar horizontal
+      if (j < boardSize - 1 && board[i][j] === board[i][j + 1]) return false;
+    }
+  }
+
+  // Se nenhuma condição foi atendida, o jogo acabou
+  showMessage('Fim de Jogo! Não há mais movimentos!', true);
+  return true;
+}
+
+
+// Inicializa o jogo
+initBoard();
