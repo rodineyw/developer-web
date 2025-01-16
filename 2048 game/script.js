@@ -194,3 +194,16 @@ function handleSwipe() {
     }
   }
 }
+
+// Seleciona o elemento de instruções
+const instructions = document.getElementById('instructions');
+
+// Detecta se o dispositivo é móvel
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+// Atualiza as instruções com base no dispositivo
+if (isMobile) {
+  instructions.textContent = "Instruções: Deslize para cima, para baixo e para os lados para jogar.";
+} else {
+  instructions.textContent = "Instruções: Use as setas do teclado para jogar. Atualize a página para reiniciar.";
+}
